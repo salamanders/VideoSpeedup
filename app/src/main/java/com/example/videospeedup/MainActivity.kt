@@ -88,7 +88,8 @@ class MainActivity : ComponentActivity() {
         val inputPath =
             FFmpegKitConfig.getSafParameterForRead(this.applicationContext, inputVideoUri)
         val outputFile = speedupToFile(1)
-        val session = FFmpegKit.execute("""-r 60 -i $inputPath -r 60 -c:v mpeg4 -q:v 1 -an ${outputFile.path}""")
+        val session =
+            FFmpegKit.execute("""-r 60 -i $inputPath -r 60 -c:v mpeg4 -q:v 1 -an ${outputFile.path}""")
 
         Log.i(logTag, session.allLogsAsString)
         val importedFileSize = humanReadableByteCountBin(outputFile.length())

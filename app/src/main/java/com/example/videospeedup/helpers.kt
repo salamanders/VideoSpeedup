@@ -5,16 +5,13 @@ import android.content.ContentValues
 import android.content.Context
 import android.content.ContextWrapper
 import android.net.Uri
-import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
 import java.io.File
 import java.io.OutputStream
 
-private val speedupRe = """faster_x(\d+).mp4""".toRegex()
-fun getFileSpeedup(videoFile: File):Int = speedupRe.find(videoFile.name)!!.groupValues[1].toInt()
-
-fun ContextWrapper.speedupToFile(speedup:Int):File = File(filesDir, "faster_x%04d.mp4".format(speedup))
+fun ContextWrapper.speedupToFile(speedup: Int): File =
+    File(filesDir, "faster_x%04d.mp4".format(speedup))
 
 fun humanReadableByteCountBin(bytes: Long) = when {
     bytes == Long.MIN_VALUE || bytes < 0 -> "N/A"
@@ -27,18 +24,22 @@ fun humanReadableByteCountBin(bytes: Long) = when {
     else -> "%.1f EiB".format((bytes shr 20).toDouble() / (0x1 shl 40))
 }
 
-fun saveAndPublishVideo(context: Context, videoFile: File, fileName: String, title:String) {
+fun saveAndPublishVideo(context: Context, videoFile: File, fileName: String, title: String) {
     val contentValues = ContentValues().apply {
         put(MediaStore.Video.Media.DISPLAY_NAME, fileName)
         put(MediaStore.Video.Media.TITLE, title)
         put(MediaStore.Video.Media.MIME_TYPE, "video/mp4")
         put(MediaStore.Video.Media.RELATIVE_PATH, Environment.DIRECTORY_MOVIES)
-        put(MediaStore.Video.Media.IS_PENDING, 1) // Mark as pending until the file is completely written
+        put(
+            MediaStore.Video.Media.IS_PENDING,
+            1
+        ) // Mark as pending until the file is completely written
     }
 
     // Get the content resolver and generate a new URI for the video
     val contentResolver: ContentResolver = context.contentResolver
-    val videoUri: Uri? = contentResolver.insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, contentValues)
+    val videoUri: Uri? =
+        contentResolver.insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, contentValues)
 
     // val manualUri = MediaStore.Video.Media.getContentUri( MediaStore.VOLUME_EXTERNAL_PRIMARY )
 
