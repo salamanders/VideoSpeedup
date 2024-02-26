@@ -1,0 +1,47 @@
+
+fun shareVideo() {
+        var nextSpeed = 1
+        while(speedupToFile(nextSpeed).exists()) {
+            nextSpeed*=2
+        }
+        val videoFile = speedupToFile(nextSpeed/2)
+
+        val contentUri: Uri = FileProvider.getUriForFile(
+            this,
+            "VideoSpeedup.fileprovider",
+            videoFile
+        )
+
+        val shareIntent = Intent(Intent.ACTION_SEND)
+        shareIntent.type = "video/mp4"
+        shareIntent.putExtra(Intent.EXTRA_STREAM, contentUri)
+        shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+
+        startActivity(Intent.createChooser(shareIntent, "Share Video"))
+    }
+
+fun copyFileSAF(context: Context, sourceFileUri: Uri, targetFolderUri: Uri, filename: String) {
+    val contentResolver = context.contentResolver
+
+    // Query to see if a file with a similar name exists
+    val existingUri = contentResolver.query(targetFolderUri, null,
+        MediaStore.MediaColumns.DISPLAY_NAME + " LIKE ?", arrayOf(filename),
+        null)?.use { cursor ->
+        if (cursor.moveToFirst()) cursor.getColumnIndex(MediaStore.MediaColumns.DATA) else null
+    }
+
+    if (existingUri != null) {
+        Log.e(logTag, "File already exists.")
+    } else {
+        val newFileUri = contentResolver.insert(targetFolderUri, ContentValues().apply {
+            put(MediaStore.MediaColumns.DISPLAY_NAME, filename)
+        }) ?: return
+
+        contentResolver.openOutputStream(newFileUri)?.use { output ->
+            contentResolver.openInputStream(sourceFileUri)?.use { input ->
+                input.copyTo(output)
+            }
+        }
+    }
+}
+*/
